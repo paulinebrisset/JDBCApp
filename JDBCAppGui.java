@@ -1,12 +1,25 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
+import java.util.Vector;
 
 public class JDBCAppGui extends JFrame {
+    // Colors
+    private static Color BACKGROUND_COLOR = Color.decode("#FFFFFF");
+    private static Color INPUT_BACKGROUND_COLOR = Color.decode("#A2E0EB");
+    private static Color BUTTONS_BACKGROUND_COLOR = Color.decode("#E3B5EB");
+    private static Color PURPLE_COLOR = Color.decode("#AEC1EB");
+    private static Color BUTTONS_COLOR = Color.decode("#96EBC8");
+
     private JTextField urlField, loginField, passwordField, queryField;
-    private JTextArea resultArea;
+    private JTable resultTable;
+    private DefaultTableModel tableModel;
     private JButton connectButton, executeButton;
 
     private Connection connection;
@@ -15,39 +28,104 @@ public class JDBCAppGui extends JFrame {
     public JDBCAppGui() {
         // Setting up the JFrame
         super("JDBC App GUI");
-        setSize(600, 400);
+        setSize(800, 700);
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Creating components
-        urlField = new JTextField("jdbc:mysql://localhost:3306/mygames", 20);
+        // Creating components for input panel
+        urlField = new JTextField("jdbc:mysql://localhost:3306/boardgames", 30);
         loginField = new JTextField("root", 20);
         passwordField = new JPasswordField(20);
-        queryField = new JTextField("SELECT * FROM games", 30);
-        resultArea = new JTextArea();
-        resultArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(resultArea);
-        connectButton = new JButton("Connect");
-        executeButton = new JButton("Execute Query");
+        queryField = new JTextField("SELECT * FROM GAME", 30);
 
-        // Adding components to the JFrame
-        JPanel inputPanel = new JPanel(new GridLayout(4, 2));
-        inputPanel.add(new JLabel("URL:"));
-        inputPanel.add(urlField);
-        inputPanel.add(new JLabel("Login:"));
-        inputPanel.add(loginField);
-        inputPanel.add(new JLabel("Password:"));
-        inputPanel.add(passwordField);
-        inputPanel.add(new JLabel("Query:"));
-        inputPanel.add(queryField);
+        // Buttons
+        connectButton = new JButton("Connect");
+        connectButton.setBackground(BUTTONS_COLOR);
+        executeButton = new JButton("Execute query");
+        executeButton.setBackground(BUTTONS_COLOR);
+
+        // Result Area
+        tableModel = new DefaultTableModel();
+        resultTable = new JTable(tableModel);
+        resultTable.setBackground(BACKGROUND_COLOR);
+
+        JScrollPane scrollPane = new JScrollPane(resultTable);
+        scrollPane.setBackground(BACKGROUND_COLOR);
+
+        // Draw the input panel
+        JPanel inputPanel = new JPanel(new GridBagLayout());
+        inputPanel.setBackground(INPUT_BACKGROUND_COLOR);
+
+        GridBagConstraints ipc = new GridBagConstraints();
+        // Add margin at the bottom with an empty label
+        ipc.gridx = 0;
+        ipc.gridy = 0;
+        ipc.anchor = GridBagConstraints.WEST;
+        ipc.insets = new Insets(0, 0, 8, 0);
+        inputPanel.add(new JLabel(), ipc);
+        ipc.gridx = 0;
+        ipc.gridy = 1;
+        ipc.anchor = GridBagConstraints.WEST;
+        inputPanel.add(new JLabel("URL:"), ipc);
+
+        ipc.gridx = 1;
+        ipc.gridy = 1;
+        ipc.anchor = GridBagConstraints.WEST;
+        inputPanel.add(urlField, ipc);
+
+        ipc.gridx = 0;
+        ipc.gridy = 2;
+        ipc.anchor = GridBagConstraints.WEST;
+        inputPanel.add(new JLabel("Login:"), ipc);
+
+        ipc.gridx = 1;
+        ipc.gridy = 2;
+        ipc.anchor = GridBagConstraints.WEST;
+        inputPanel.add(loginField, ipc);
+
+        ipc.gridx = 0;
+        ipc.gridy = 3;
+        ipc.anchor = GridBagConstraints.WEST;
+        inputPanel.add(new JLabel("Password:"), ipc);
+
+        ipc.gridx = 1;
+        ipc.gridy = 3;
+        ipc.anchor = GridBagConstraints.WEST;
+        inputPanel.add(passwordField, ipc);
+
+        ipc.gridx = 0;
+        ipc.gridy = 4;
+        ipc.anchor = GridBagConstraints.WEST;
+        inputPanel.add(new JLabel("Query:"), ipc);
+
+        ipc.gridx = 1;
+        ipc.gridy = 4;
+        ipc.anchor = GridBagConstraints.WEST;
+        inputPanel.add(queryField, ipc);
+
+        // Add margin at the bottom with an empty label
+        ipc.gridx = 0;
+        ipc.gridy = 5;
+        ipc.anchor = GridBagConstraints.WEST;
+        ipc.insets = new Insets(0, 0, 8, 0);
+        inputPanel.add(new JLabel(), ipc);
 
         JPanel buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.add(connectButton);
         buttonPanel.add(executeButton);
+        buttonPanel.setBackground(BUTTONS_BACKGROUND_COLOR);
 
-        add(inputPanel, BorderLayout.NORTH);
-        add(scrollPane, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
+        JPanel emptyPanel = new JPanel();
+        emptyPanel.setBackground(PURPLE_COLOR);
+        JPanel inputButtonPanel = new JPanel(new BorderLayout());
+        inputButtonPanel.add(inputPanel, BorderLayout.NORTH);
+        inputButtonPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Adding components to the content pane
+        add(inputButtonPanel, BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.CENTER); // Placing inputButtonPanel between inputPanel and resultTable
+        add(emptyPanel, BorderLayout.SOUTH);
 
         // Adding action listeners
         connectButton.addActionListener(new ActionListener() {
@@ -72,12 +150,14 @@ public class JDBCAppGui extends JFrame {
             String password = passwordField.getText();
 
             // Establishing the connection
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(url, login, password);
             statement = connection.createStatement();
-            resultArea.setText("Connected to the database.");
-        } catch (Exception ex) {
-            resultArea.setText("Error connecting to the database: " + ex.getMessage());
+
+            // Show connected status
+            JOptionPane.showMessageDialog(this, "Connected to the database.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error connecting to the database: " + e.getMessage());
         }
     }
 
@@ -85,30 +165,60 @@ public class JDBCAppGui extends JFrame {
         try {
             String query = queryField.getText();
             ResultSet resultSet = statement.executeQuery(query);
+
+            // Clear the table and set column names
+            tableModel.setDataVector(new Vector<Vector<Object>>(),
+                    getColumnNames(resultSet));
+
+            // Fill the table model with data
             displayResults(resultSet);
-        } catch (SQLException ex) {
-            resultArea.setText("Error executing query: " + ex.getMessage());
+
+            // Adjust column widths
+            adjustColumnWidths();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error executing query: " + e.getMessage());
         }
     }
 
-    private void displayResults(ResultSet resultSet) throws SQLException {
+    private Vector<String> getColumnNames(ResultSet resultSet) throws SQLException {
         ResultSetMetaData meta = resultSet.getMetaData();
-        StringBuilder buffer = new StringBuilder();
-
         int cols = meta.getColumnCount();
+        Vector<String> columnNames = new Vector<>();
         for (int i = 1; i <= cols; i++) {
-            buffer.append(meta.getColumnLabel(i)).append("\t");
+            columnNames.add(meta.getColumnLabel(i).toUpperCase());
         }
-        buffer.append("\n");
+        return columnNames;
+    }
 
+    private void displayResults(ResultSet resultSet) throws SQLException {
+        // Fill the table model with data
         while (resultSet.next()) {
-            for (int i = 1; i <= cols; i++) {
-                buffer.append(resultSet.getString(i)).append("\t");
-            }
-            buffer.append("\n");
-        }
+            Vector<Object> rowData = new Vector<>();
+            ResultSetMetaData meta = resultSet.getMetaData();
+            int cols = meta.getColumnCount();
 
-        resultArea.setText(buffer.toString());
+            for (int i = 1; i <= cols; i++) {
+                rowData.add(resultSet.getString(i));
+            }
+            tableModel.addRow(rowData);
+        }
+    }
+
+    private void adjustColumnWidths() {
+        for (int column = 0; column < resultTable.getColumnCount(); column++) {
+            int maxWidth = 0;
+
+            for (int row = 0; row < resultTable.getRowCount(); row++) {
+                TableCellRenderer cellRenderer = resultTable.getCellRenderer(row, column);
+                Object value = resultTable.getValueAt(row, column);
+                Component cellComponent = cellRenderer.getTableCellRendererComponent(resultTable, value, false, false,
+                        row, column);
+                maxWidth = Math.max(maxWidth, cellComponent.getPreferredSize().width);
+            }
+
+            TableColumn tableColumn = resultTable.getColumnModel().getColumn(column);
+            tableColumn.setPreferredWidth(maxWidth + 10); // Add some padding
+        }
     }
 
     public static void main(String[] args) {

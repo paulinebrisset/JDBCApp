@@ -26,8 +26,8 @@ import java.sql.SQLException;
 // https://www.javatpoint.com/example-to-connect-to-the-mysql-database
 public class JDBCAppConsole {
 	// Paramètres de connection
-	// Ce que je veux utiliser : mysql -h 127.0.0.1 -P 3306 -u root mygames
-	String url = "jdbc:mysql://localhost:3306/mygames"; // URL de connexion
+	// Ce que je veux utiliser : mysql -h 127.0.0.1 -P 3306 -u root boardgames
+	String url = "jdbc:mysql://localhost:3306/boardgames"; // URL de connexion
 	String login = "root"; // user
 	String password = ""; // pwd
 	String driverName = "com.mysql.jdbc.Driver";

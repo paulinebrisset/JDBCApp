@@ -1,41 +1,41 @@
-DROP DATABASE IF EXISTS mygames;
-CREATE DATABASE mygames;
-USE mygames;
+DROP DATABASE IF EXISTS boardgames;
+CREATE DATABASE boardgames;
+USE boardgames;
 
-CREATE TABLE Authors (
-    AuthorID INT NOT NULL AUTO_INCREMENT,
-    AuthorName VARCHAR(255) NOT NULL,
-    PRIMARY KEY (AuthorID)
+CREATE TABLE Author (
+    id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
 );
 
-CREATE TABLE Publishers (
-    PublisherID INT NOT NULL AUTO_INCREMENT,
-    PublisherName VARCHAR(255) NOT NULL,
-    PRIMARY KEY (PublisherID)
+CREATE TABLE Publisher (
+    id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
 );
 
-CREATE TABLE Games (
-    GameID INT NOT NULL AUTO_INCREMENT,
-    GameName VARCHAR(255) NOT NULL,
-    AuthorID INT NOT NULL,
-    PublisherID INT NOT NULL,
-    BoxPrice DECIMAL(10,2) NOT NULL,
-    AgeLimit INT NOT NULL,
-    DurationMinutes INT NOT NULL,
-    SoldUnits INT NOT NULL,
-    PRIMARY KEY (GameID),
-    FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID),
-    FOREIGN KEY (PublisherID) REFERENCES Publishers(PublisherID)
+CREATE TABLE Game (
+    id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    id_author INT NOT NULL,
+    id_publisher INT NOT NULL,
+    box_price DECIMAL(10,2) NOT NULL,
+    age_limit INT NOT NULL,
+    duration INT NOT NULL,
+    sold_units INT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (id_author) REFERENCES Author(id),
+    FOREIGN KEY (id_publisher) REFERENCES Publisher(id)
 );
 
-CREATE TABLE GameTranslations (
-    GameID INT NOT NULL,
-    LanguageCode VARCHAR(2) NOT NULL,
-    GameName VARCHAR(255) NOT NULL,
-    PRIMARY KEY (GameID, LanguageCode),
-    FOREIGN KEY (GameID) REFERENCES Games(GameID)
+CREATE TABLE GameTranslation (
+    id_game INT NOT NULL,
+    language VARCHAR(2) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id_game, language),
+    FOREIGN KEY (id_game) REFERENCES Game(id)
 );
-INSERT INTO Authors (AuthorName) VALUES
+INSERT INTO Author (name) VALUES
     ('Reiner Knizia'),
     ('Vlaada Chvátil'),
     ('Stefan Feld'),
@@ -52,7 +52,7 @@ INSERT INTO Authors (AuthorName) VALUES
     ('Antoine Bauza'),
     ('Phil Walker-Harding'),
     ('Alexander Pfister'),
-    ('Leder Games'),
+    ('Leder Game'),
     ('Vital Lacerda'),
     ('Dávid Turczi'),
     ('Isaac Childres'),
@@ -68,38 +68,38 @@ INSERT INTO Authors (AuthorName) VALUES
     ('Kevin Wilson'),
     ('Michael Elliott');
 
-INSERT INTO Publishers (PublisherName) VALUES
+INSERT INTO Publisher (name) VALUES
     ('Kosmos'),
-    ('Czech Games Edition'),
-    ('Queen Games'),
+    ('Czech Game Edition'),
+    ('Queen Game'),
     ('HABA'),
-    ('Stonemaier Games'),
+    ('Stonemaier Game'),
     ('CMON'),
-    ('Academy Games'),
-    ('Z-Man Games'),
-    ('Victory Point Games'),
-    ('Mayfair Games'),
+    ('Academy Game'),
+    ('Z-Man Game'),
+    ('Victory Point Game'),
+    ('Mayfair Game'),
     ('Ravensburger'),
     ('Wizards of the Coast'),
     ('Asmodee'),
     ('Matagot'),
-    ('Bezier Games'),
-    ('Eagle-Gryphon Games'),
+    ('Bezier Game'),
+    ('Eagle-Gryphon Game'),
     ('Gamewright'),
     ('Repos Production'),
-    ('Portal Games'),
-    ('Greater Than Games'),
-    ('GMT Games'),
-    ('Ares Games'),
-    ('Jamey Stegmaier Games'),
+    ('Portal Game'),
+    ('Greater Than Game'),
+    ('GMT Game'),
+    ('Ares Game'),
+    ('Jamey Stegmaier Game'),
     ('Kickstarter'),
-    ('North Star Games'),
+    ('North Star Game'),
     ('Marvel'),
-    ('Ares Games'),
+    ('Ares Game'),
     ('Corvus Belli'),
     ('Renegade Game Studios');
 
-INSERT INTO Games (GameName, AuthorID, PublisherID, BoxPrice, AgeLimit, DurationMinutes, SoldUnits) VALUES
+INSERT INTO Game (name, id_author, id_publisher, box_price, age_limit, duration, sold_units) VALUES
     ('Catan', 1, 1, 50.00, 10, 60, 25000000),
     ('7 Wonders', 2, 3, 50.00, 10, 30, 2000000),
     ('Carcassonne', 1, 4, 30.00, 8, 30, 10000000),
@@ -128,7 +128,7 @@ INSERT INTO Games (GameName, AuthorID, PublisherID, BoxPrice, AgeLimit, Duration
     ('Gloomhaven: Jaws of the Lion', 15, 16, 60.00, 12, 90, 500000),
     ('Codenames: Duet', 20, 20, 20.00, 10, 15, 500000);
 
-INSERT INTO GameTranslations (GameID, LanguageCode, GameName) VALUES
+INSERT INTO GameTranslation (id_game, language, name) VALUES
     (1, 'fr', 'Les Colons de Catane'),
     (1, 'es', 'Catan'),
     (2, 'fr', '7 Wonders'),
