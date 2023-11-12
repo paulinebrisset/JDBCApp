@@ -5,6 +5,20 @@ JDBC simpleapp
 ## Description
 Java application using JDBC to connect to any database and provide some features such as: allowing the input of queries, displaying the results in table format. 
 
+## Overview
+
+* This project involves creating a interface to interact with any database.
+
+![Homepage view](homepage.png)
+
+* Once connected, one can do any query on this database
+
+![simplequery view](simplequery.png)
+
+* A parameted query can also be done, with fields name do set in a wizard
+
+![queryparameters view](queryparameters.png)
+
 ## Getting Started
 
 ### Dependencies

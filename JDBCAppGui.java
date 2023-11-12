@@ -12,10 +12,10 @@ import java.util.Vector;
 public class JDBCAppGui extends JFrame {
     // Colors
     private static Color BACKGROUND_COLOR = Color.decode("#FFFFFF");
-    private static Color INPUT_BACKGROUND_COLOR = Color.decode("#A2E0EB");
-    private static Color BUTTONS_BACKGROUND_COLOR = Color.decode("#E3B5EB");
-    private static Color PURPLE_COLOR = Color.decode("#AEC1EB");
-    private static Color BUTTONS_COLOR = Color.decode("#96EBC8");
+    private static Color BUTTONS_COLOR = Color.decode("#D5D4E5");
+    private static Color BOTTOM_COLOR = Color.decode("#A1B3D1");
+    private static Color BUTTONS_BACKGROUND_COLOR = Color.decode("#D7B4DF");
+    private static Color INPUT_BACKGROUND_COLOR = Color.decode("#A1B3D1");
 
     private JTextField urlField, loginField, passwordField, queryField;
     private JTable resultTable;
@@ -28,7 +28,10 @@ public class JDBCAppGui extends JFrame {
     public JDBCAppGui() {
         // Setting up the JFrame
         super("JDBC App GUI");
+        // Set a reasonable initial size
         setSize(800, 700);
+        // Let the layout manager handle the sizing
+        setPreferredSize(new Dimension(800, 700));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -37,7 +40,7 @@ public class JDBCAppGui extends JFrame {
         urlField = new JTextField("jdbc:mysql://localhost:3306/boardgames", 30);
         loginField = new JTextField("root", 20);
         passwordField = new JPasswordField(20);
-        queryField = new JTextField("SELECT * FROM GAME", 30);
+        queryField = new JTextField("SELECT ? FROM GAME", 30);
 
         // Buttons
         connectButton = new JButton("Connect");
@@ -115,9 +118,10 @@ public class JDBCAppGui extends JFrame {
         buttonPanel.add(connectButton);
         buttonPanel.add(executeButton);
         buttonPanel.setBackground(BUTTONS_BACKGROUND_COLOR);
+        executeButton.setEnabled(false);
 
         JPanel emptyPanel = new JPanel();
-        emptyPanel.setBackground(PURPLE_COLOR);
+        emptyPanel.setBackground(BOTTOM_COLOR);
         JPanel inputButtonPanel = new JPanel(new BorderLayout());
         inputButtonPanel.add(inputPanel, BorderLayout.NORTH);
         inputButtonPanel.add(buttonPanel, BorderLayout.SOUTH);
@@ -156,28 +160,95 @@ public class JDBCAppGui extends JFrame {
 
             // Show connected status
             JOptionPane.showMessageDialog(this, "Connected to the database.");
+
+            // Enable the executeButton since the connection is established
+            executeButton.setEnabled(true);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error connecting to the database: " + e.getMessage());
+
+            // Disable the executeButton if there is an error in connection
+            executeButton.setEnabled(false);
         }
     }
 
     private void executeQuery() {
         try {
             String query = queryField.getText();
-            ResultSet resultSet = statement.executeQuery(query);
 
-            // Clear the table and set column names
-            tableModel.setDataVector(new Vector<Vector<Object>>(),
-                    getColumnNames(resultSet));
+            // Check if the query contains following '??' cause I don't handle it
+            if (query.contains("??")) {
+                // Parameters must be seperated with comas
+                JOptionPane.showMessageDialog(this, "Invalid query: Please replace '??' with '?,?'");
+                return;
+            }
 
-            // Fill the table model with data
-            displayResults(resultSet);
-
-            // Adjust column widths
-            adjustColumnWidths();
+            // Always use PreparedStatement for consistency
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                // Check if the query contains parameters
+                if (query.contains("?")) {
+                    // Show a dialog to input parameters
+                    showParameterInputDialog(query);
+                } else {
+                    executeQueryWithPreparedStatement(preparedStatement);
+                }
+            }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error executing query: " + e.getMessage());
         }
+    }
+
+    private void showParameterInputDialog(String query) {
+        // Show a dialog to input parameters
+        String input = JOptionPane.showInputDialog(this,
+                "Enter parameters (one parameter per ?, separate it with commas):");
+        if (input != null) {
+            String[] parameters = input.split(",");
+            try {
+                String modifiedQuery = replaceParameters(query, parameters);
+                executeQueryWithModifiedQuery(modifiedQuery);
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error executing query with parameters: " + e.getMessage());
+            }
+        }
+    }
+
+    private String replaceParameters(String query, String[] parameters) {
+        for (String parameter : parameters) {
+            // Remove quotes from the parameter value
+            String parameterValue = parameter.trim().replaceAll("'", "");
+
+            // Replace the first "?" in the query with the parameter value
+            query = query.replaceFirst("\\?", parameterValue);
+        }
+        return query;
+    }
+
+    private void executeQueryWithModifiedQuery(String modifiedQuery) throws SQLException {
+        // Execute the modified query
+        ResultSet resultSet = statement.executeQuery(modifiedQuery);
+
+        // Clear the table and set column names
+        tableModel.setDataVector(new Vector<Vector<Object>>(), getColumnNames(resultSet));
+
+        // Fill the table model with data
+        displayResults(resultSet);
+
+        // Adjust column widths
+        adjustColumnWidths();
+    }
+
+    private void executeQueryWithPreparedStatement(PreparedStatement preparedStatement) throws SQLException {
+        // Execute the query with or without parameters
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        // Clear the table and set column names
+        tableModel.setDataVector(new Vector<Vector<Object>>(), getColumnNames(resultSet));
+
+        // Fill the table model with data
+        displayResults(resultSet);
+
+        // Adjust column widths
+        adjustColumnWidths();
     }
 
     private Vector<String> getColumnNames(ResultSet resultSet) throws SQLException {
