@@ -9,15 +9,15 @@ Java application using JDBC to connect to any database and provide some features
 
 * This project involves creating a interface to interact with any database.
 
-![Homepage view](homepage.png)
+![Homepage view](./assets/homepage.png)
 
 * Once connected, one can do any query on this database
 
-![simplequery view](simplequery.png)
+![simplequery view](./assets/simplequery.png)
 
 * A parameted query can also be done, with fields name do set in a wizard
 
-![queryparameters view](queryparameters.png)
+![queryparameters view](./assets/queryparameters.png)
 
 ## Getting Started
 
