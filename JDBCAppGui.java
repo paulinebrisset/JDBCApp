@@ -20,10 +20,10 @@ public class JDBCAppGui extends JFrame {
         setLayout(new BorderLayout());
 
         // Creating components
-        urlField = new JTextField("jdbc:mysql://localhost:3306/beocler", 20);
+        urlField = new JTextField("jdbc:mysql://localhost:3306/mygames", 20);
         loginField = new JTextField("root", 20);
         passwordField = new JPasswordField(20);
-        queryField = new JTextField("SELECT * FROM item", 30);
+        queryField = new JTextField("SELECT * FROM games", 30);
         resultArea = new JTextArea();
         resultArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(resultArea);

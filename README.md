@@ -47,6 +47,11 @@ We also need a JDBC driver suitable for the DBMS. For MySQL, it can be dowloaded
    ```bash
    java JDBCAppGui.java
    ```
+* Provide the connection information in the form
+* Clic on "Connect" button
+* Provide a query to be executed
+* Clic on "Execute query"
+
 
 
 ## Author
