@@ -18,6 +18,7 @@ Java application using JDBC to connect to any database and provide some features
 * A parameted query can also be done, with fields name do set in a wizard
 
 ![queryparameters view](./assets/queryparameters.png)
+![queryparametersresult view](./assets/queryparameters-2.png)
 
 ## Getting Started
 

@@ -2,7 +2,6 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,23 +11,27 @@ import java.util.Vector;
 public class JDBCAppGui extends JFrame {
     // Colors
     private static Color BACKGROUND_COLOR = Color.decode("#FFFFFF");
-    private static Color BUTTONS_COLOR = Color.decode("#D5D4E5");
-    private static Color BOTTOM_COLOR = Color.decode("#A1B3D1");
-    private static Color BUTTONS_BACKGROUND_COLOR = Color.decode("#D7B4DF");
-    private static Color INPUT_BACKGROUND_COLOR = Color.decode("#A1B3D1");
+    private static Color BUTTONS_COLOR = Color.decode("#FFDEC1");
+    private static Color SCND_BACKGROUND_COLOR = Color.decode("#FCCCD6");
+    private static Color BUTTONS_BACKGROUND_COLOR = Color.decode("#FF8C7D");
 
+    // Input components
     private JTextField urlField, loginField, passwordField, queryField;
     private JTable resultTable;
     private DefaultTableModel tableModel;
     private JButton connectButton, executeButton;
 
+    // Database connection
     private Connection connection;
     private Statement statement;
+    private static final String DRIVER_NAME = "com.mysql.cj.jdbc.Driver";
+    // Default query at initializing
+    private static final String DEFAULT_QUERY = "SELECT ? FROM GAME;";
 
     public JDBCAppGui() {
-        // Setting up the JFrame
+        // Set up the JFrame
         super("JDBC App GUI");
-        // Set a reasonable initial size
+        // Set initial size
         setSize(800, 700);
         // Let the layout manager handle the sizing
         setPreferredSize(new Dimension(800, 700));
@@ -40,7 +43,7 @@ public class JDBCAppGui extends JFrame {
         urlField = new JTextField("jdbc:mysql://localhost:3306/boardgames", 30);
         loginField = new JTextField("root", 20);
         passwordField = new JPasswordField(20);
-        queryField = new JTextField("SELECT ? FROM GAME", 30);
+        queryField = new JTextField(DEFAULT_QUERY, 30);
 
         // Buttons
         connectButton = new JButton("Connect");
@@ -58,7 +61,7 @@ public class JDBCAppGui extends JFrame {
 
         // Draw the input panel
         JPanel inputPanel = new JPanel(new GridBagLayout());
-        inputPanel.setBackground(INPUT_BACKGROUND_COLOR);
+        inputPanel.setBackground(SCND_BACKGROUND_COLOR);
 
         GridBagConstraints ipc = new GridBagConstraints();
         // Add margin at the bottom with an empty label
@@ -121,7 +124,7 @@ public class JDBCAppGui extends JFrame {
         executeButton.setEnabled(false);
 
         JPanel emptyPanel = new JPanel();
-        emptyPanel.setBackground(BOTTOM_COLOR);
+        emptyPanel.setBackground(SCND_BACKGROUND_COLOR);
         JPanel inputButtonPanel = new JPanel(new BorderLayout());
         inputButtonPanel.add(inputPanel, BorderLayout.NORTH);
         inputButtonPanel.add(buttonPanel, BorderLayout.SOUTH);
@@ -154,7 +157,7 @@ public class JDBCAppGui extends JFrame {
             String password = passwordField.getText();
 
             // Establishing the connection
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            Class.forName(DRIVER_NAME);
             connection = DriverManager.getConnection(url, login, password);
             statement = connection.createStatement();
 
